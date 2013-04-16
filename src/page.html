@@ -13,14 +13,29 @@
 			background: -webkit-gradient(linear, left top, left bottom, from(#aaa), to(#333)); 
 			background: -moz-linear-gradient(bottom, #ddd, #aaa); 
 		}
+
+		#log {
+			font-family: monospace;
+			font-size: 10pt;
+		}
+
+		#log p {
+			border-bottom: 1px solid #eee;
+		}
+
+		#deck {
+			border: 1px solid #ccc;
+			margin: 2px;
+			padding: 0;
+		}
 		-->
 	</style>
 	<body>
 		<script src="https://hangoutsapi.talkgadget.google.com/hangouts/api/hangout.js?v=1.4" ></script>
 		<h3>Story War</h3>
-		<p><input class="button" type="button" value="Show participants!" id="showParticipants" style="visibility:hidden;" onClick="showParticipants()"/></p>
-		<div id="participantsDiv"></div>
-		<p><a href="http://developers.google.com/+/hangouts/getting-started">Read the docs</a> to learn more about developing hangouts!</a></p>
+		<p><a href="#" onclick="storywar.initDeck();">Shuffle</a></p>
+		<div id="deck"> </div>
+		<div id="log"> </div>
 		<script>
 			%SCRIPT%
 		</script>
