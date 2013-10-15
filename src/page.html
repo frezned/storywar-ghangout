@@ -1,6 +1,12 @@
 <html>
 	<style type="text/css">
 		<!--
+		html, body {
+			height: 100%;
+			margin: 0;
+			padding: 0;
+		}
+
 		.button {
 			border-radius: 3px;
 			-moz-border-radius: 3px;
@@ -17,25 +23,138 @@
 		#log {
 			font-family: monospace;
 			font-size: 10pt;
+			clear: both;
 		}
 
 		#log p {
 			border-bottom: 1px solid #eee;
 		}
 
-		#deck {
-			border: 1px solid #ccc;
-			margin: 2px;
+		.group {
+			margin: 0;
 			padding: 0;
 		}
+
+		.deck {
+			width: 66px;
+			height: 88px;
+		}
+
+		.card {
+			width: 62px;
+			height: 88px;
+			display: inline-block;
+			overflow: hidden;
+			font-size: 12px;
+			background-size: contain;
+			background-repeat: no-repeat;
+		}
+
+		#deck .card {
+			display: none;
+		}
+
+		#table .card {
+			position: absolute;
+		}
+
+		.MO { 
+			background-image: url(http://cantripgames.com/hangout/frame_MO_w.png);
+		}
+		.LO { 
+			background-image: url(http://cantripgames.com/hangout/frame_LO_w.png);
+		}
+		.IT {
+			background-image: url(http://cantripgames.com/hangout/frame_IT_w.png);
+		}
+
+		#field {
+			display: flex;
+			flex-flow: column;
+			height: 100%;
+			width: 100%;
+			align-items: stretch;
+		}
+
+		.maingroup {
+			display: flex;
+			flex: 100%;
+		}
+
+		#field .group {
+			position: relative;
+			border: 3px solid #ccc;
+		}
+
+		#field .groupheader {
+			font-size: 30px;
+			position: absolute;
+			font-family: sans-serif;
+			color: rgba(0,0,0,0.5);
+			pointer-events: none;
+		}
+
+		#deck {
+			width: 100px;
+			text-align: center;
+		}
+
+		#table {
+			flex: 100%;
+		}
+
+		#hand {
+			height: 200px;
+			text-align: center;
+		}
+
+		#hand .card {
+			height: 185px;
+			width: 131px;
+		}
+	
+		.hidden {
+			display: none;
+		}
+
 		-->
 	</style>
 	<body>
 		<script src="https://hangoutsapi.talkgadget.google.com/hangouts/api/hangout.js?v=1.4" ></script>
-		<h3>Story War</h3>
-		<p><a href="#" onclick="storywar.initDeck();">Shuffle</a></p>
-		<div id="deck"> </div>
-		<div id="log"> </div>
+		<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js" ></script>
+		<div id="field">
+			<div class="maingroup">
+				<div class="group" id="deck">
+					<div class="groupheader">DECK</div>
+					<div id="sidebar">
+						<div>
+							<a href="#" onclick="storywar.initDeck();">Shuffle</a><br />
+							<a id="p0" href="#" onclick="storywar.claimPlayer(0);">0</a>
+							<a id="p1" href="#" onclick="storywar.claimPlayer(1);">1</a>
+							<a id="p2" href="#" onclick="storywar.claimPlayer(2);">2</a>
+							<a id="p3" href="#" onclick="storywar.claimPlayer(3);">3</a>
+							<a id="p4" href="#" onclick="storywar.claimPlayer(4);">4</a>
+							<a id="p5" href="#" onclick="storywar.claimPlayer(5);">5</a>
+							<a id="p6" href="#" onclick="storywar.claimPlayer(6);">6</a>
+							<a id="p7" href="#" onclick="storywar.claimPlayer(7);">7</a>
+						</div>
+					</div>
+					<div>
+						<div><a href="#" onclick="storywar.draw('MO');"><img class="deck" src="http://cantripgames.com/hangout/back_MO.png"/></a></div>
+						<div><a href="#" onclick="storywar.draw('IT');"><img class="deck" src="http://cantripgames.com/hangout/back_IT.png"/></a></div>
+						<div><a href="#" onclick="storywar.draw('LO');"><img class="deck" src="http://cantripgames.com/hangout/back_LO.png"/></a></div>
+					</div>
+				</div>
+				<div class="group" id="table"> 
+					<div class="groupheader">TABLE</div>
+					<div id="log"> </div>
+				</div>
+			</div>
+			<div class="group" id="hand"> 
+				<div class="groupheader">HAND</div>
+			</div>
+			<div class="hidden" id="otherhand"></div>
+		</div>
 		<script>
 			%SCRIPT%
 		</script>
