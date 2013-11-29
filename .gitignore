@@ -1,4 +1,6 @@
+*.swo
 *.swp
 build
+res
+*.swn
 address.txt
-compiler.jar

@@ -120,8 +120,16 @@
 		-->
 	</style>
 	<body>
+		<!-- -{% if true %}->{% endif %}
 		<script src="https://hangoutsapi.talkgadget.google.com/hangouts/api/hangout.js?v=1.4" ></script>
 		<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js" ></script>
+		<!-{% if true %}-{% endif %} -->
+
+		<!--{% if false %} -->
+		<script src="jquery.js"></script>
+		<script src="gapisim.js"></script>
+		<!--{% endif %} -->
+
 		<div id="field">
 			<div class="maingroup">
 				<div class="group" id="deck">
@@ -155,8 +163,14 @@
 			</div>
 			<div class="hidden" id="otherhand"></div>
 		</div>
+		<!-- -{% if true %}->{% endif %}
 		<script>
-			%SCRIPT%
+			{{ minified_script }}
 		</script>
+		<!-{% if true %}-{% endif %} -->
+
+		<!--{% if false %} -->
+		<script src="script.js"></script>
+		<!--{% endif %} -->
 	</body>
 </html>

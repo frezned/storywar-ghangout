@@ -18,7 +18,7 @@
 	  <Require feature="locked-domain" />
   </ModulePrefs>
   <Content type="html"><![CDATA[     
-	  %HTML%
+	  {% include "page.html" %}
 	  ]]>
   </Content>
 </Module>
