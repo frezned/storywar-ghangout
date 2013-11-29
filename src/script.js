@@ -120,14 +120,6 @@ Card = function(data) {
 		.addClass(this.type)
 		.attr("id", 'C' + this.id)
 		.append( $("<div>").addClass("title").html(this.title));
-	elem.mousedown(function(ev) {
-		var c = elem.card;
-		storywar.dragged = c;
-		c.dragoffsetx = ev.clientX - elem.offset().left;
-		c.dragoffsety = ev.clientY - elem.offset().top;
-		c.note.html(c.dragoffsetx + ", " + c.dragoffsety);
-		return false;
-	});
 	this.note = $("<div>").addClass("note").appendTo(elem);
 	this.action = $("<div>").addClass("action").appendTo(elem).html("action");
 	this.elem = elem;
@@ -159,32 +151,47 @@ proto.update = function(data) {
 	}
 };
 
+proto.moveTo = function(id) {
+	var elem = this.elem;
+	var c = this;
+	elem.appendTo($(id));
+	elem.mousedown(function(ev) {
+		storywar.dragged = c;
+		c.startx = elem.css("left");
+		c.starty = elem.css("top");
+		c.dragoffsetx = ev.clientX - elem.offset().left;
+		c.dragoffsety = ev.clientY - elem.offset().top;
+		c.note.html(c.dragoffsetx + ", " + c.dragoffsety);
+		return false;
+	});
+};
+
 proto.update.U = function() {
-	this.elem.appendTo($("#unknown"));
+	this.moveTo("#unknown");
 };
 
 proto.update.D = function() {
-	this.elem.appendTo($("#deck"));
+	this.moveTo("#deck");
 };
 
 proto.update.X = function() {
-	this.elem.appendTo($("#discard"));
+	this.moveTo("#discard");
 };
 
 proto.update.H = function(playerid, idx) {
 	if(parseInt(playerid) == storywar.getLocalPlayer()) {
-		this.elem.appendTo($("#hand"));
+		this.moveTo("#hand");
 	} else {
-		this.elem.appendTo($("#otherhand"));
+		this.moveTo("#otherhand");
 	}
 };
 
 proto.update.T = function(x, y, s) {
-	this.elem.appendTo($("#table"));
+	this.moveTo("#table");
 };
 
 proto.update.V = function(playerid) {
-	this.elem.appendTo($("#victory"));
+	this.moveTo("#victory");
 };
 
 function onStateChanged(ev) {
