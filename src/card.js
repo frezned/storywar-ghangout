@@ -55,6 +55,8 @@ var TEXTLINE = (35/880.0)*CARDH;
 
 cp.inbounds = function(x, y) {
 	if(this.visible && this.tweentime >= 1) {
+		x += CARDW*this.scale*0.5;
+		y += CARDH*this.scale*0.5;
 		return (x >= this.x && y >= this.y && x < this.x + CARDW*this.scale && y < this.y + CARDH*this.scale);
 	} else {
 		return false;
@@ -98,6 +100,13 @@ cp.tick = function(dt) {
 	}
 };
 
+cp.getImage = function() {
+	if(!this.image) {
+		this.image = makeImg(this.imgurl);
+	};
+	return this.image;
+};
+
 cp.draw = function(ctx) {
 	this.tick(1/30.0);
 
@@ -107,13 +116,9 @@ cp.draw = function(ctx) {
 	ctx.scale(this.scale, this.scale);
 	ctx.translate(-CARDW/2, -CARDH/2);
 
-	if(!this.image) {
-		this.image = makeImg(this.imgurl);
-	};
-
 	ctx.fillStyle = "#000";
 	ctx.drawImage(frames[this.type], 0, 0, CARDW, CARDH);
-	ctx.drawImage(this.image, IMGX, IMGY, IMGSIZE, IMGSIZE);
+	ctx.drawImage(this.getImage(), IMGX, IMGY, IMGSIZE, IMGSIZE);
 	ctx.font = "24pt Arial";
 	ctx.textAlign = "center";
 	ctx.fillText(this.title, TITLEX, TITLEY);

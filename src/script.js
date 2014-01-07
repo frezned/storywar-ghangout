@@ -112,8 +112,32 @@ function init() {
 		}
 	});
 
+	var getFieldScale = function() {
+		var h = game.height;
+		var w = game.width;
+		var xscale = 1;
+		var yscale = 1;
+		if(h < 1000) {
+			yscale = h / 1000.0;
+		}
+		if(w < 1500) {
+			xscale = w / 1500.0;
+		}
+		return Math.min(xscale, yscale);
+	};
+
+	var adjustMouse = function(e) {
+		var x = e.offsetX;
+		var y = e.offsetY;
+		var factor = 1/getFieldScale();
+
+		return {x: (x-game.width/2)*factor, y: (y-game.height/2)*factor};
+	};
+
 	storywar.tabledepth = 0;
 	$("#game").mousedown(function(e) {
+		var mouse = adjustMouse(e);
+		console.log(mouse);
 		if(storywar.dragged) {
 			stopdrag(e);
 		} else {
@@ -121,7 +145,7 @@ function init() {
 			var candidate = null;
 			for(var k in storywar.allcards) {
 				var c = storywar.allcards[k];
-				if(c.inbounds(e.offsetX, e.offsetY) && c.depth > depth) {
+				if(c.inbounds(mouse.x, mouse.y) && c.depth > depth) {
 					candidate = c;
 					depth = c.depth;
 				}
@@ -129,8 +153,8 @@ function init() {
 			if(candidate) {
 				storywar.tabledepth += 1;
 				var d = storywar.dragged = candidate;
-				storywar.dragoffsetx = d.x - e.offsetX;
-				storywar.dragoffsety = d.y - e.offsetY;
+				storywar.dragoffsetx = d.x - mouse.x;
+				storywar.dragoffsety = d.y - mouse.y;
 				d.depth = storywar.tabledepth;
 				d.domain = "held";
 				d.localplayer = true;
@@ -141,15 +165,17 @@ function init() {
 	$("#game").mousemove(function(e) {
 		var d = storywar.dragged;
 		if(d) {
-			d.x = e.offsetX + storywar.dragoffsetx;
-			d.y = e.offsetY + storywar.dragoffsety;
+			var mouse = adjustMouse(e);
+			d.x = mouse.x + storywar.dragoffsetx;
+			d.y = mouse.y + storywar.dragoffsety;
 		}
 	});
 
 	var stopdrag = function(e) {
 		var d = storywar.dragged;
 		if(d) {
-			if(e.offsetY > game.height-200) {
+			var mouse = adjustMouse(e);
+			if(mouse.y > game.height-200) {
 				storywar.setCard(d.id, "H:" + storywar.getLocalPlayer() + ":0");
 				d.domain = "hand";
 			} else {
@@ -176,24 +202,40 @@ function init() {
 		ctx.save();
 		ctx.fillStyle = "#ccffcc";
 		ctx.fillRect(0, 0, game.width, game.height);
-		ctx.fillStyle = "#ccaacc";
 		//ctx.fillRect(0, 0, game.width, game.height-200);
+		
+		var scale = getFieldScale();
 
 		ctx.translate(w/2, h/2);
+		ctx.scale(scale, scale);
+		ctx.fillStyle = "#ff00ff";
+		ctx.fillRect(-750, -100, 1500, 200);
+		ctx.fillStyle = "#ffffff";
 		ctx.fillRect(-500, -500, 1000, 1000);
 		
-		var domains = { table: [], hand: [], held: [] };
+		var battlefield = null;
+		var domains = { background: [], table: [], hand: [], held: [] };
 		for(var k in storywar.allcards) {
 			var c = storywar.allcards[k];
 			var domain = domains[c.domain];
 			if(domain) { domain.push(c); }
 		};
 
+		// draw background
+		if(domains.background.length > 0) {
+			ctx.globalAlpha = 0.4;
+			ctx.drawImage(domains.background[0].getImage(), -500, -500, 1000, 1000);
+			ctx.globalAlpha = 1;
+		}
+
+		// draw table
 		domains.table.sort(function(a, b) { return a.depth - b.depth; });
 		domains.table.forEach(function(c) {
 			c.scale = 0.4;
 			c.draw(ctx);
 		});
+
+		// draw hand
 		var hc = domains.hand.length;
 		domains.hand.sort(function(a, b) { return a.idx - b.idx; });
 		domains.hand.forEach(function(c, i) {
@@ -202,10 +244,13 @@ function init() {
 			c.scale = 0.3;
 			c.draw(ctx);
 		});
+		
+		// draw item(s) being dragged
 		domains.held.forEach(function(c) {
 			c.scale = 0.5;
 			c.draw(ctx);
 		});
+
 		ctx.restore();
 
 	}, 30);
