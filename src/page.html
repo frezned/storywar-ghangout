@@ -1,4 +1,5 @@
 <html>
+	<head>
 	<style type="text/css">
 		<!--
 		html, body {
@@ -101,6 +102,8 @@
 
 		#table {
 			flex: 100%;
+			width: 100%;
+			background: #cc0;
 		}
 
 		#hand {
@@ -117,19 +120,29 @@
 			display: none;
 		}
 
+		canvas {
+			-webkit-touch-callout: none;
+			-webkit-user-select: none;
+			-khtml-user-select: none;
+			-moz-user-select: none;
+			-ms-user-select: none;
+			user-select: none;
+			background: #ccf;
+		}
+
 		-->
 	</style>
+	<!-- -{% if true %}->{% endif %}
+	<script src="https://hangoutsapi.talkgadget.google.com/hangouts/api/hangout.js?v=1.4" ></script>
+	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js" ></script>
+	<!-{% if true %}-{% endif %} -->
+
+	<!--{% if false %} -->
+	<script src="jquery.js"></script>
+	<!--{% endif %} -->
+	</head>
+
 	<body>
-		<!-- -{% if true %}->{% endif %}
-		<script src="https://hangoutsapi.talkgadget.google.com/hangouts/api/hangout.js?v=1.4" ></script>
-		<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js" ></script>
-		<!-{% if true %}-{% endif %} -->
-
-		<!--{% if false %} -->
-		<script src="jquery.js"></script>
-		<script src="gapisim.js"></script>
-		<!--{% endif %} -->
-
 		<div id="field">
 			<div class="maingroup">
 				<div class="group" id="deck">
@@ -154,14 +167,9 @@
 					</div>
 				</div>
 				<div class="group" id="table"> 
-					<div class="groupheader">TABLE</div>
-					<div id="log"> </div>
+					<canvas id="game" width="800" height="800"></canvas>
 				</div>
 			</div>
-			<div class="group" id="hand"> 
-				<div class="groupheader">HAND</div>
-			</div>
-			<div class="hidden" id="otherhand"></div>
 		</div>
 		<!-- -{% if true %}->{% endif %}
 		<script>
@@ -170,6 +178,8 @@
 		<!-{% if true %}-{% endif %} -->
 
 		<!--{% if false %} -->
+		<script src="gapisim.js"></script>
+		<script src="card.js"></script>
 		<script src="script.js"></script>
 		<!--{% endif %} -->
 	</body>

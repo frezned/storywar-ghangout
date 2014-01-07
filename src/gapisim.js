@@ -1,14 +1,18 @@
 (function() {
 
 	gapi = {};
+
+	gapi.simulator = {};
+	gapi.simulator.ready = function() {};
+
 	gapi.hangout = {};
 	gapi.hangout.data = {};
 
 	var __localdict = {};
 	var __handlers = [];
+	var __ready = [];
 
 	var update = function(delta) {
-		console.log(delta);
 		for(var o in delta) {
 			__localdict[o] = delta[o];
 		}
@@ -40,11 +44,17 @@
 		__handlers.push(handler);
 	};
 
+	gapi.hangout.onApiReady = {};
+	gapi.hangout.onApiReady.add = function(handler) {
+		gapi.simulator.ready = function() { 
+			handler({isApiReady: true});
+		}
+	};
+
 	gadgets = { util: { registerOnLoadHandler: function(init) {
 										  console.log("--GAPI Simulator--");
 										  $(init);
 									  }
-		   }
- };
+		   } };
 
 })();

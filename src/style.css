@@ -1,0 +1,41 @@
+
+.button {
+	border-radius: 3px;
+	-moz-border-radius: 3px;
+	background: -webkit-gradient(linear, left top, left bottom, from(#fff), to(#ddd));
+	background: -moz-linear-gradient(top, #fff, #ddd);  
+	border: 1px solid #bbb;
+}
+
+.button:active {
+	background: -webkit-gradient(linear, left top, left bottom, from(#aaa), to(#333)); 
+	background: -moz-linear-gradient(bottom, #ddd, #aaa); 
+}
+
+#log {
+	font-family: monospace;
+	font-size: 10pt;
+}
+
+#log p {
+	border-bottom: 1px solid #eee;
+}
+
+#deck {
+	border: 1px solid #ccc;
+	margin: 2px;
+	padding: 0;
+}
+
+.card {
+	width: 66px;
+	height: 88px;
+	display: inline-block;
+	overflow: hidden;
+	float: left;
+	font-size: 12px;
+}
+
+.mo { border: 2px solid #f55; }
+.lo { border: 2px solid #5f5; }
+.it { border: 2px solid #55f; }

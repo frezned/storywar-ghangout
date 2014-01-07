@@ -21,34 +21,9 @@ function log(str) {
 	$("#log").append($("<p>").html(str));
 }
 
-var WARRIORS = ["Anubis", "Bat", "Charizard", "Dragon", "Ectoplasm", 
-	"Frightener", "Ghoul", "Hogwarts", "Iguana", "Jackalope",
-	"Killbot", "Leopardman", "Mandrake", "No-no", "Octopod",
-	"Perseus", "Quickbooks", "Ratatouille", "Serpentra", "Tom McLean",
-	"Ursula", "Wyvern", "Yosemite Sam", "Zanzibar"];
-var PLACES = ["Atlantis", "Beanstalk", "Cemetary", "Dark Castle", "Edge of the World", "Frost Keep"];
-var ITEMS = ["Ankh", "Boomerang", "Cloak", "Didgeridoo", "Electric Suit", "Farcaster"];
-var CARDS = function() {
-	var cs = {};
-	var count = 0;
-	for(var i in WARRIORS) {
-		cs[count] = { title: WARRIORS[i], id: count, type: 'MO', text: "~" + WARRIORS[i] + "~" };
-		count++;
-	};
-	for(var i in PLACES) {
-		cs[count] = { title: PLACES[i], id: count, type: 'LO', text: "~" + PLACES[i] + "~" };
-		count++;
-	};
-	for(var i in ITEMS) {
-		cs[count] = { title: ITEMS[i], id: count, type: 'IT', text: "~" + ITEMS[i] + "~" };
-		count++;
-	};
-	return cs;
-}();
-
 storywar.initDeck = function() {
 	var deckids = [];
-	for(var k in CARDS) {
+	for(var k in storywar.allcards) {
 		deckids.push(k);
 	}
 	shuffleArray(deckids);
@@ -84,10 +59,9 @@ storywar.updateDecks = function() {
 		cards = cards.split(",");
 		for(var i in cards) {
 			var cid = cards[i];
-			var c = storywar.cards[cid];
+			var c = storywar.allcards[cid];
 			if(!c) {
-				// create it
-				c = storywar.cards[cid] = new Card(CARDS[cid]);
+				// TODO create it
 			}
 			c.update(storywar.getCardData(cid));
 		};
@@ -97,130 +71,148 @@ storywar.updateDecks = function() {
 storywar.setCard = function(cid, stat) {
 	var data = {};
 	data["C" + cid] = stat;
+	console.log(data);
 	gapi.hangout.data.submitDelta(data);
 };
 
 storywar.draw = function(type) {
-	var deck = gapi.hangout.data.getValue('deck').split(",").filter(function(x) {
-		return storywar.getCardData(x) == "D" && CARDS[x].type == type;
+	var deck = (gapi.hangout.data.getValue('deck') || "").split(",").filter(function(x) {
+		return storywar.getCardData(x) == "D" && storywar.allcards[x].type == type;
 	});
 	if(deck.length > 0) {
 		storywar.setCard(deck[0], "H:" + storywar.getLocalPlayer() + ":0");
 	};
 };
 
-Card = function(data) {
-	this.title = data.title;
-	this.type = data.type;
-	this.id = data.id;
-	this.text = data.text;
-
-	var elem = $("<div>")
-		.addClass("card")
-		.addClass(this.type)
-		.attr("id", 'C' + this.id)
-		.append( $("<div>").addClass("title").html(this.title));
-	this.note = $("<div>").addClass("note").appendTo(elem);
-	this.action = $("<div>").addClass("action").appendTo(elem).html("action");
-	this.elem = elem;
-	this.dirty = false;
-
-	this.data = NaN;
-};
-var proto = Card.prototype;
-
-proto.drag = function(x, y) {
-	this.elem.css({
-		left: x - this.dragoffsetx,
-		top:  y - this.dragoffsety
-	});
-};
-
-proto.update = function(data) {
-	// data will be in the form of:
-	//   D -- in its deck
-	//   X -- discarded
-	//   H:playerid:idx -- in a player's hand
-	//   T:x:y:s -- on the table at (x,y) with status s (turned, flipped etc)
-	//   V:playerid -- as a VP for a player
-	if(data != this.data || this.dirty) {
-		this.data = data;
-		this.note.html(data);
-		var parts = data.split(":");
-		Card.prototype.update[parts[0]].apply(this, parts.slice(1));
-	}
-};
-
-proto.moveTo = function(id) {
-	var elem = this.elem;
-	var c = this;
-	elem.appendTo($(id));
-	elem.mousedown(function(ev) {
-		storywar.dragged = c;
-		c.startx = elem.css("left");
-		c.starty = elem.css("top");
-		c.dragoffsetx = ev.clientX - elem.offset().left;
-		c.dragoffsety = ev.clientY - elem.offset().top;
-		c.note.html(c.dragoffsetx + ", " + c.dragoffsety);
-		return false;
-	});
-};
-
-proto.update.U = function() {
-	this.moveTo("#unknown");
-};
-
-proto.update.D = function() {
-	this.moveTo("#deck");
-};
-
-proto.update.X = function() {
-	this.moveTo("#discard");
-};
-
-proto.update.H = function(playerid, idx) {
-	if(parseInt(playerid) == storywar.getLocalPlayer()) {
-		this.moveTo("#hand");
-	} else {
-		this.moveTo("#otherhand");
-	}
-};
-
-proto.update.T = function(x, y, s) {
-	this.moveTo("#table");
-};
-
-proto.update.V = function(playerid) {
-	this.moveTo("#victory");
-};
-
 function onStateChanged(ev) {
-	console.log(ev);
 	storywar.updateDecks();
 }
 
 function init() {
 	// When API is ready...                                                         
-	/*gapi.hangout.onApiReady.add(
+	gapi.hangout.onApiReady.add(
 			function(eventObj) {
 				if (eventObj.isApiReady) {
-					
+					if(!gapi.hangout.data.getValue("deck")) {
+						storywar.initDeck();
+					};
 				}
-			});*/
+			});
 
 	gapi.hangout.data.onStateChanged.add(onStateChanged);
 
-	$("#field").mousemove(function(ev) {
+	storywar.handicon = makeImg(domain + "hand.png");
+	storywar.allcards = {};
+	var seturl = "https://s3.amazonaws.com/cantriphangout/base.json";
+	$.getJSON(seturl, function(data) {
+		storywar.allcards = {};
+		for(var i in data.cards) {
+			var c = new Card(data.cards[i]);
+			storywar.allcards[c.id] = c;
+		}
+	});
+
+	storywar.tabledepth = 0;
+	$("#game").mousedown(function(e) {
 		if(storywar.dragged) {
-			storywar.dragged.drag(ev.clientX, ev.clientY);
-		};
+			stopdrag(e);
+		} else {
+			var depth = -1;
+			var candidate = null;
+			for(var k in storywar.allcards) {
+				var c = storywar.allcards[k];
+				if(c.inbounds(e.offsetX, e.offsetY) && c.depth > depth) {
+					candidate = c;
+					depth = c.depth;
+				}
+			}
+			if(candidate) {
+				storywar.tabledepth += 1;
+				var d = storywar.dragged = candidate;
+				storywar.dragoffsetx = d.x - e.offsetX;
+				storywar.dragoffsety = d.y - e.offsetY;
+				d.depth = storywar.tabledepth;
+				d.domain = "held";
+				d.localplayer = true;
+			}
+		}
 	});
-	$("#field").mouseup(function(ev) {
-		storywar.dragged = null;	
+
+	$("#game").mousemove(function(e) {
+		var d = storywar.dragged;
+		if(d) {
+			d.x = e.offsetX + storywar.dragoffsetx;
+			d.y = e.offsetY + storywar.dragoffsety;
+		}
 	});
-	$("#field").mouseleave(function(ev) {
+
+	var stopdrag = function(e) {
+		var d = storywar.dragged;
+		if(d) {
+			if(e.offsetY > game.height-200) {
+				storywar.setCard(d.id, "H:" + storywar.getLocalPlayer() + ":0");
+				d.domain = "hand";
+			} else {
+				storywar.setCard(d.id, "T:" + storywar.getLocalPlayer() + ":" + d.x + ":" + d.y + ":-");
+				d.domain = "table";
+			}
+		}
 		storywar.dragged = null;
-	});
+	};
+	//$("#game").mouseleave(stopdrag);
+	//$("#game").mouseup(stopdrag);
+
+	var onresize = function() {
+		game.width = $("#table").width();
+		game.height = $("#table").height();
+	};
+	onresize();
+	$(window).resize(onresize);
+
+	setInterval(function() {
+		var w = game.width;
+		var h = game.height;
+		var ctx = game.getContext("2d");
+		ctx.save();
+		ctx.fillStyle = "#ccffcc";
+		ctx.fillRect(0, 0, game.width, game.height);
+		ctx.fillStyle = "#ccaacc";
+		//ctx.fillRect(0, 0, game.width, game.height-200);
+
+		ctx.translate(w/2, h/2);
+		ctx.fillRect(-500, -500, 1000, 1000);
+		
+		var domains = { table: [], hand: [], held: [] };
+		for(var k in storywar.allcards) {
+			var c = storywar.allcards[k];
+			var domain = domains[c.domain];
+			if(domain) { domain.push(c); }
+		};
+
+		domains.table.sort(function(a, b) { return a.depth - b.depth; });
+		domains.table.forEach(function(c) {
+			c.scale = 0.4;
+			c.draw(ctx);
+		});
+		var hc = domains.hand.length;
+		domains.hand.sort(function(a, b) { return a.idx - b.idx; });
+		domains.hand.forEach(function(c, i) {
+			c.x = game.width * 0.5 + i*100 - hc*100*0.5;
+			c.y = game.height-200;
+			c.scale = 0.3;
+			c.draw(ctx);
+		});
+		domains.held.forEach(function(c) {
+			c.scale = 0.5;
+			c.draw(ctx);
+		});
+		ctx.restore();
+
+	}, 30);
+	
+	if(gapi.simulator) {
+		gapi.simulator.ready();
+	};
 }
 
 // Wait for gadget to load.                                                       
